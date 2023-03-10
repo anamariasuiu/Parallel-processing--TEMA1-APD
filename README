@@ -1,0 +1,51 @@
+TEMA 1 APD
+Șuiu Ana-Maria 332CC
+
+Main:
+Citim din fisierul de input : numarul(N) si numele fisierelor. Calculam
+dimensiunea fisierelor cu ajutorul functiei seek .Punem intr-o coada de
+prioritati o pereche pentru fiecare fisier care contine dimensiunea sa si
+numele lui, avand ca prioritate dimensiunea.
+Calculam toate puterile cu baza de la 1 la int_max si exponent de la 2 la
+numar exponentului maxim. Pentru fiecare exponent cream un set expSet in
+care pastram puterile. Cream o pereche de tip (exponent, expSet) pe care
+o inseram in mapul pows.
+Initializam structura fiecarui thread de tip Map si Reducer.
+Cream threadurile avand ca argumente threads, functia f si args[i] care
+este structura threadului curent.
+Cand toate thread-urile au terminat sa-si execute operatiile, incepem
+sa cream fisierele de out. Pentru fiecare exponent cream cate un fisier
+unde punem dimensiunea setului asociat exponentului curent.
+
+Functia f:
+Cream un map avand ca si cheie exponentul si lista cu puterile care urmeaza
+sa fie gasite pentru exponentul respectiv. Acesta va fi folosit de catre
+threadurile de tip Mapper.
+Daca thread-ul este de tip Mapper, incepem sa preluam fisiere din coada
+de fisiere. Primul fisier preluat va fi cel cu dimensiunea cea mai mare,
+astfel pastrand echilibrul threadurilor. Punem un mutex inainte de a face 
+modificari pe coada ca mai multe threaduri sa nu faca modificari simulatan
+in coada.
+Mapperul curent deschide fisierul extras si extrage toate numerele din 
+acesta. Pentru fiecare numar(value) verifica daca pentru fiecare exponent
+numarul se afla in in setul asociat exponentului. Daca se afla, inseamna
+ca numarul e putere avand exponentul respectiv si il adaugam in mapul
+partial_lists.
+Dupa ce a terminat de prelucrat toate fisierele disponibile, mapperul
+adauga in allLists mapul lui de puteri gasite avand asociate valorii
+partial_lists id-ul lui. Folosim un mutex pentru a nu prelucra mai multe
+threaduri simultan mapul allLists.
+Punem o bariera initializata cu numarul de threaduri pentru
+a astepta mapperii sa termine de prelucrat toate fisierele, astfel
+incat ca reducerii sa inceapa sa prelucreze.
+Daca avem thread de tip Reducer incepem prelucrarea mapului allLists unde
+avem puterile gasite pentru fiecare exponent de catre fiecare mapper.
+Pentru reducerul curent cautam sa prelucram doar listele cu exponentul
+asignat lui(de exemplu reducerul 1 se ocupa de listele cu puteri pentru
+exponentul 2).
+In mapul allLists aveam asocierea (thread_id, map(exponent, lista de puteri)).
+Pentru fiecare asociere cautam in fiecare map lista de puteri cu exponentul
+curent. Din aceasta lista extragem toate elementele si la inseram intr-un
+set pentru a nu avea elemente unice. Cand am terminat de prelucrat toate
+listele de puteri, adaugam in mapul final asociere intre exponent si
+setul de puteri. Acesta operatie o protejam cu un mutex.
